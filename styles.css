@@ -10,7 +10,7 @@ h2 {
     text-align: center;
 }
 
-#allProjectsGrid {
+#allProjectsGrid, #project-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
@@ -35,4 +35,17 @@ button {
 
 button:hover {
     background-color: #ff3333;
+}
+
+/* Status color coding */
+.status-started {
+    color: red;
+}
+
+.status-in-progress {
+    color: yellow;
+}
+
+.status-completed {
+    color: green;
 }

@@ -11,11 +11,22 @@ async function fetchProjects() {
         const project = docSnapshot.data();
         const projectCard = document.createElement('div');
         projectCard.classList.add('project-card');
+        
+        // Apply the status class based on the project status
+        let statusClass = '';
+        if (project.status === 'started') {
+            statusClass = 'status-started';
+        } else if (project.status === 'in-progress') {
+            statusClass = 'status-in-progress';
+        } else if (project.status === 'completed') {
+            statusClass = 'status-completed';
+        }
+
         projectCard.innerHTML = `
             <p><strong>Employee:</strong> ${project.employee}</p>
             <p>Company: ${project.companyName}</p>
             <p>Service: ${project.serviceRequired}</p>
-            <p>Status: ${project.status}</p>
+            <p class="${statusClass}">Status: ${project.status}</p>
             <button class="delete-btn" data-id="${docSnapshot.id}">Delete</button>
         `;
         grid.appendChild(projectCard);
