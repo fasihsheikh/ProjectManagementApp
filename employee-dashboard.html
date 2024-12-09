@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <h2 id="welcomeMessage"></h2>
+        <form id="projectForm">
+            <input type="text" id="companyName" placeholder="Company Name" required>
+            <input type="text" id="serviceRequired" placeholder="Service Required" required>
+            <input type="date" id="startDate" placeholder="Start Date" required>
+            <input type="date" id="completionDate" placeholder="Completion Date" required>
+            <select id="projectStatus" required>
+                <option value="started">Started (Red)</option>
+                <option value="in-progress">In Progress (Yellow)</option>
+                <option value="completed">Completed (Green)</option>
+            </select>
+            <input type="file" id="documentUpload">
+            <button type="submit">Submit Project</button>
+        </form>
+
+        <div id="projectGrid"></div>
+    </div>
+
+    <script src="employee-dashboard.js"></script>
+</body>
+</html>
