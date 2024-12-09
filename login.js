@@ -1,27 +1,16 @@
-const ADMIN_USERNAME = 'Fasih';
-const ADMIN_PASSWORD = 'admin123';
+document.getElementById('login-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
 
-function adminLogin() {
-    const username = document.getElementById('adminUsername').value;
-    const password = document.getElementById('adminPassword').value;
-
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-        localStorage.setItem('userType', 'admin');
-        window.location.href = 'admin-dashboard.html';
-    } else {
-        alert('Invalid Admin Credentials');
-    }
-}
-
-function employeeLogin() {
-    const username = document.getElementById('employeeUsername').value;
-    const password = document.getElementById('employeePassword').value;
-
-    if (username && password) {
-        localStorage.setItem('userType', 'employee');
-        localStorage.setItem('employeeUsername', username);
-        window.location.href = 'employee-dashboard.html';
-    } else {
-        alert('Please enter username and password');
-    }
-}
+  if (username === "admin" && password === "admin123") {
+    localStorage.setItem('userType', 'admin');
+    window.location.href = 'admin-dashboard.html';
+  } else if (["employee1", "employee2", "employee3"].includes(username) && password === "employee123") {
+    localStorage.setItem('userType', 'employee');
+    localStorage.setItem('username', username);
+    window.location.href = 'employee-dashboard.html';
+  } else {
+    alert('Invalid credentials');
+  }
+});

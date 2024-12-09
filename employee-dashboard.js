@@ -1,79 +1,70 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const employeeUsername = localStorage.getItem('employeeUsername');
-    if (!employeeUsername) {
-        window.location.href = 'index.html';
-        return;
+import { db } from './firebase-config.js';
+import { collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+// Handle form submission for adding projects
+document.getElementById('project-form').addEventListener('submit', async (e) => {
+    e.preventDefault();  // Prevent the form from reloading the page
+
+    const project = {
+        employee: localStorage.getItem('username'),  // Get username from localStorage
+        companyName: document.getElementById('company-name').value,
+        serviceRequired: document.getElementById('service-required').value,
+        startDate: document.getElementById('start-date').value,
+        endDate: document.getElementById('end-date').value,
+        status: document.getElementById('status').value,
+    };
+
+    // Add project to Firestore
+    try {
+        await addDoc(collection(db, "projects"), project);
+        alert('Project added!');
+        fetchProjects();  // Fetch and display updated projects
+    } catch (error) {
+        console.error("Error adding document: ", error);
     }
+});
 
-    document.getElementById('welcomeMessage').textContent = `Welcome, ${employeeUsername}!`;
+// Fetch and display projects for the employee
+async function fetchProjects() {
+    const querySnapshot = await getDocs(collection(db, "projects"));
+    const grid = document.getElementById('project-grid');
+    grid.innerHTML = '';  // Clear existing projects
 
-    const projectForm = document.getElementById('projectForm');
-    const projectGrid = document.getElementById('projectGrid');
-
-    function renderProjects() {
-        const projects = JSON.parse(localStorage.getItem('projects') || '[]')
-            .filter(p => p.employeeUsername === employeeUsername);
-
-        projectGrid.innerHTML = projects.map((project, index) => `
-            <div class="project-card" style="background-color:${getStatusColor(project.projectStatus)}">
+    querySnapshot.forEach((docSnapshot) => {
+        const project = docSnapshot.data();
+        if (project.employee === localStorage.getItem('username')) { // Only show projects for the logged-in employee
+            const projectCard = document.createElement('div');
+            projectCard.classList.add('project-card');
+            projectCard.innerHTML = `
                 <p>Company: ${project.companyName}</p>
                 <p>Service: ${project.serviceRequired}</p>
-                <p>Start Date: ${project.startDate}</p>
-                <p>Completion Date: ${project.completionDate}</p>
-                <p>Status: ${project.projectStatus}</p>
-                <button onclick="editProject(${index})">Edit</button>
-                <button onclick="deleteProject(${index})">Delete</button>
-            </div>
-        `).join('');
-    }
-
-    function getStatusColor(status) {
-        switch(status) {
-            case 'started': return 'rgba(255, 0, 0, 0.2)';
-            case 'in-progress': return 'rgba(255, 255, 0, 0.2)';
-            case 'completed': return 'rgba(0, 255, 0, 0.2)';
-            default: return 'white';
+                <p>Status: ${project.status}</p>
+                <button class="delete-btn" data-id="${docSnapshot.id}">Delete</button>
+            `;
+            grid.appendChild(projectCard);
         }
-    }
-
-    function deleteProject(index) {
-        const projects = JSON.parse(localStorage.getItem('projects') || '[]')
-            .filter(p => p.employeeUsername === employeeUsername);
-        projects.splice(index, 1);
-        localStorage.setItem('projects', JSON.stringify(projects));
-        renderProjects();
-    }
-
-    function editProject(index) {
-        const projects = JSON.parse(localStorage.getItem('projects') || '[]')
-            .filter(p => p.employeeUsername === employeeUsername);
-        const project = projects[index];
-        
-        document.getElementById('companyName').value = project.companyName;
-        document.getElementById('serviceRequired').value = project.serviceRequired;
-        document.getElementById('startDate').value = project.startDate;
-        document.getElementById('completionDate').value = project.completionDate;
-        document.getElementById('projectStatus').value = project.projectStatus;
-    }
-
-    projectForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const project = {
-            employeeUsername,
-            companyName: document.getElementById('companyName').value,
-            serviceRequired: document.getElementById('serviceRequired').value,
-            startDate: document.getElementById('startDate').value,
-            completionDate: document.getElementById('completionDate').value,
-            projectStatus: document.getElementById('projectStatus').value
-        };
-
-        const projects = JSON.parse(localStorage.getItem('projects') || '[]');
-        projects.push(project);
-        localStorage.setItem('projects', JSON.stringify(projects));
-
-        renderProjects();
-        projectForm.reset();
     });
 
-    renderProjects();
-});
+    // Attach event listeners to delete buttons
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const projectId = this.getAttribute('data-id');
+            deleteProject(projectId);  // Call deleteProject with the ID of the project
+        });
+    });
+}
+
+// Function to delete a project from Firestore
+async function deleteProject(id) {
+    try {
+        const docRef = doc(db, "projects", id); // Reference to the specific document
+        await deleteDoc(docRef);  // Delete the document from Firestore
+        fetchProjects();  // Refresh the project list
+    } catch (error) {
+        console.error("Error deleting document: ", error);
+    }
+}
+
+// Load projects when the page is loaded
+fetchProjects();
